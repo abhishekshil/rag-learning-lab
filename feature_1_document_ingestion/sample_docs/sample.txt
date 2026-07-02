@@ -1,0 +1,31 @@
+What is Retrieval-Augmented Generation?
+
+Retrieval-Augmented Generation (RAG) is a technique that improves large language model (LLM) responses by fetching relevant external documents before generating an answer. Instead of relying only on the knowledge baked into the model during training, RAG lets the model read up-to-date or domain-specific information at query time.
+
+Why RAG Matters
+
+LLMs are trained on data up to a certain date. They cannot know about events that happened after their training cutoff. They also struggle with niche internal company knowledge, proprietary documentation, or specialized domains that were underrepresented in training data. RAG solves both problems by connecting the model to a live knowledge base.
+
+How RAG Works
+
+The process has two main phases. In the indexing phase, documents are loaded, cleaned, split into smaller chunks, and then embedded into vectors. These vectors are stored in a vector database such as Pinecone, Weaviate, or FAISS. In the retrieval phase, when a user asks a question, that question is also embedded into a vector. The system then finds the chunks whose vectors are closest to the question vector. Finally, those chunks are passed to the LLM as context, and the LLM generates a grounded answer.
+
+Chunking Strategies
+
+Chunking is one of the most important and often overlooked steps in building a RAG system. A chunk that is too large will contain irrelevant information that confuses the model. A chunk that is too small will lack enough context for the model to generate a good answer.
+
+Fixed-size chunking splits text every N characters regardless of sentence or paragraph boundaries. It is simple to implement and fast, but it can cut sentences in half, losing meaning at boundaries.
+
+Sentence-based chunking respects natural language boundaries. It splits on periods, question marks, and exclamation points. This preserves meaning within each chunk but can produce chunks of very different sizes depending on how long the sentences are.
+
+Recursive character text splitting tries a list of separators in order: first double newlines (paragraph breaks), then single newlines, then spaces, then individual characters. This produces chunks that are more semantically coherent than fixed-size splitting while still hitting a target size.
+
+Semantic chunking uses an embedding model to measure similarity between consecutive sentences. When the similarity drops below a threshold, a new chunk begins. This is the most expensive approach but produces the most semantically meaningful chunks.
+
+Overlap and Why It Helps
+
+Most chunking strategies support an overlap parameter. This means the last N characters of one chunk are repeated at the start of the next chunk. Overlap prevents information from being lost at chunk boundaries, which is especially important for fixed-size chunking.
+
+What Comes Next
+
+After chunking, each chunk is passed through an embedding model to produce a dense vector. Common choices are OpenAI text-embedding-ada-002, Cohere embed-english-v3, or open-source models like all-MiniLM-L6-v2. These vectors are then stored in a vector database, ready for similarity search at query time.

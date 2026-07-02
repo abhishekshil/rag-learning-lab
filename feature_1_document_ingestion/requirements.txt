@@ -1,0 +1,5 @@
+langchain-text-splitters==0.3.8
+nltk==3.9.1
+pypdf==5.4.0
+tiktoken==0.8.0
+sentence-transformers==5.1.2
