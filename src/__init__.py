@@ -1,0 +1,3 @@
+# Makes `src` the common package for the RAG Learning Lab.
+# Each feature lives in its own subpackage: src/feature_1_..., src/feature_2_...
+# Shared entry point is main.py at the project root.

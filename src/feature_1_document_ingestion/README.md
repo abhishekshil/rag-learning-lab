@@ -9,12 +9,17 @@ Learn chunking by implementing and comparing 7 strategies on the same document.
 3. Chunk with 7 strategies  
 4. Compare chunk counts and boundaries
 
-Run:
+Run from the project root via the shared app:
 
 ```bash
 python3 -m pip install -r requirements.txt
-python3 run.py
+
+python3 main.py --feature 1 --chunker all        # compare all strategies
+python3 main.py --feature 1 --chunker recursive --show-chunks
 ```
+
+This feature is a library (`src/feature_1_document_ingestion`); the source
+document lives in the shared `docs/` folder at the project root.
 
 ## Decision Tree (Which chunker to use?)
 
