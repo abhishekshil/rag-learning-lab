@@ -3,7 +3,7 @@
 #
 # LLD Pattern: Strategy Pattern (same idea as Feature 1's chunkers)
 #   - BaseEmbedder is the "strategy interface"
-#   - HashingEmbedder, SentenceTransformerEmbedder are concrete strategies
+#   - HashingEmbedder, SentenceTransformerEmbedder, HybridEmbedder are strategies
 #   - The pipeline and vector store only talk to BaseEmbedder, so swapping a
 #     keyword baseline for a real neural model costs zero changes elsewhere.
 #

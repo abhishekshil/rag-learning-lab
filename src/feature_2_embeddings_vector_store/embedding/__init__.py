@@ -4,4 +4,8 @@
 
 from .base_embedder import BaseEmbedder
 from .hashing_embedder import HashingEmbedder
-from .sentence_transformer_embedder import SentenceTransformerEmbedder
+from .hybrid_embedder import HybridEmbedder
+from .SentenceTransformer import (
+    LangChainSentenceTransformerEmbedder,
+    SentenceTransformerEmbedder,
+)

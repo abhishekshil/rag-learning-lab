@@ -7,7 +7,7 @@ them with metadata, and runs top-k similarity search.
 ## What this feature does
 
 1. Reuse Feature 1 to get chunks (no re-chunking here)
-2. Embed each chunk into a vector (2 strategies)
+2. Embed each chunk into a vector (3 strategies)
 3. Store vectors + text + metadata in a vector store
 4. Run top-k similarity search and compare keyword vs semantic retrieval
 
@@ -38,6 +38,10 @@ run_ingestion`. No cross-directory bridge is needed.
 - **SentenceTransformer (dense / semantic)**: real neural embeddings
   (`all-MiniLM-L6-v2`, 384 dims). Matches on meaning, so it handles synonyms
   and paraphrases.
+- **Hybrid (sparse + dense fusion)**: runs both legs, scales them (default
+  30% keyword / 70% semantic), concatenates, and L2-normalizes into one vector.
+  Single-index fusion — simpler than dual-index + RRF, but captures both signal
+  types in one search pass.
 
 ## Vector store
 
@@ -52,8 +56,9 @@ chunkers), so the pipeline never changes when you swap implementations.
 ## What the demo shows
 
 - An embedder comparison table (dimension, chunk count, embed time)
-- The same queries run through keyword vs semantic embeddings, side by side, so
-  you can see dense embeddings win on paraphrased queries
+- The same queries run through keyword, semantic, and hybrid embeddings side by
+  side, so you can see dense embeddings win on paraphrased queries and hybrid
+  often balances both
 - A metric comparison (cosine vs dot vs euclidean) on the same dense vectors
 
 ## Key ideas

@@ -3,5 +3,10 @@
 #   from src.feature_2_embeddings_vector_store import build_index, search
 
 from .pipeline import build_index, chunks_to_records, search, IndexResult
-from .embedding import HashingEmbedder, SentenceTransformerEmbedder
+from .embedding import (
+    HashingEmbedder,
+    HybridEmbedder,
+    LangChainSentenceTransformerEmbedder,
+    SentenceTransformerEmbedder,
+)
 from .vector_store import InMemoryVectorStore, VectorRecord, SearchResult

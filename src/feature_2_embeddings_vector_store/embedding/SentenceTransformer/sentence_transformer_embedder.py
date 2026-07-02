@@ -1,7 +1,9 @@
 # sentence_transformer_embedder.py
-# A DENSE / semantic embedder backed by a real neural model.
+# DENSE / semantic embedder WITHOUT LangChain — direct sentence-transformers.
 #
 # It wraps a sentence-transformers model (default: all-MiniLM-L6-v2, 384 dims).
+# For the LangChain wrapper over the same model, see
+# langchain_sentence_transformer_embedder.py.
 # The model was trained so that sentences with similar MEANING land close
 # together in vector space, even when they share no words. This is what lets a
 # query about "storing vectors with metadata" match a chunk about vector stores
@@ -11,7 +13,7 @@
 
 import numpy as np
 
-from .base_embedder import BaseEmbedder
+from ..base_embedder import BaseEmbedder
 
 
 class SentenceTransformerEmbedder(BaseEmbedder):

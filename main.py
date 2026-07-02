@@ -36,6 +36,8 @@ from src.feature_2_embeddings_vector_store import (
     search,
     InMemoryVectorStore,
     HashingEmbedder,
+    HybridEmbedder,
+    LangChainSentenceTransformerEmbedder,
     SentenceTransformerEmbedder,
 )
 
@@ -65,6 +67,15 @@ CHUNKERS = {
 EMBEDDERS = {
     "hashing": lambda: HashingEmbedder(dimension=512),
     "semantic": lambda: SentenceTransformerEmbedder(),
+    "langchain": lambda: LangChainSentenceTransformerEmbedder(),
+    "hybrid": lambda: HybridEmbedder(),
+}
+
+EMBEDDER_TAGS = {
+    "hashing": "KEYWORD",
+    "semantic": "SEMANTIC (direct)",
+    "langchain": "SEMANTIC (LangChain)",
+    "hybrid": "HYBRID",
 }
 
 METRICS = ("cosine", "dot", "euclidean")
@@ -208,7 +219,7 @@ def run_feature_2(chunker_choice: str, embedder_choice: str, metric: str, show_m
         labelled = []
         for name, embedder, store in stores:
             hits = search(store, embedder, query, k=TOP_K)
-            tag = "KEYWORD " if name == "hashing" else "SEMANTIC"
+            tag = EMBEDDER_TAGS.get(name, name.upper())
             labelled.append((f"{tag} | {embedder.name()}", hits))
         print_query_results(query, labelled)
 
