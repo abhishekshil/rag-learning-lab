@@ -7,9 +7,9 @@ them with metadata, and runs top-k similarity search.
 ## What this feature does
 
 1. Reuse Feature 1 to get chunks (no re-chunking here)
-2. Embed each chunk into a vector (3 strategies)
+2. Embed each chunk into a vector (9 strategies across 7 categories)
 3. Store vectors + text + metadata in a vector store
-4. Run top-k similarity search and compare keyword vs semantic retrieval
+4. Run top-k similarity search and compare retrieval approaches
 
 Run from the project root via the shared app:
 
@@ -17,7 +17,8 @@ Run from the project root via the shared app:
 python3 -m pip install -r requirements.txt
 
 python3 main.py --feature 2 --embedder all --metric cosine
-python3 main.py --feature 2 --chunker recursive --embedder semantic --no-metrics
+python3 main.py --feature 2 --chunker recursive --embedder instruct --no-metrics
+python3 main.py --feature 2 --embedder openai   # needs OPENAI_API_KEY
 ```
 
 ## Pipeline
@@ -27,43 +28,50 @@ Feature 1 (reused)                Feature 2 (this feature)
 load → clean → chunk    ───────►  embed → store → top-k search
 ```
 
-Because everything lives in one project, this feature imports Feature 1's
-ingestion directly: `from ..feature_1_document_ingestion.pipeline import
-run_ingestion`. No cross-directory bridge is needed.
+## Embedding catalog (by category)
 
-## Embedding strategies
+| Category | CLI key | Class | Use case |
+|----------|---------|-------|----------|
+| **sparse** | `hashing` | `HashingEmbedder` | Dumb keyword baseline (NumPy, no download) |
+| **sparse** | `splade` | `SpladeEmbedder` | Learned sparse — smarter keywords (SPLADE) |
+| **dense** | `semantic` | `SentenceTransformerEmbedder` | Direct sentence-transformers (MiniLM, 384d) |
+| **dense** | `langchain` | `LangChainSentenceTransformerEmbedder` | Same model via LangChain |
+| **hybrid** | `hybrid` | `HybridEmbedder` | Hashing + semantic fused (896d) |
+| **instruct** | `instruct` | `InstructEmbedder` | E5 query/passage prefixes (768d) |
+| **multimodal** | `clip` | `ClipEmbedder` | CLIP text tower (512d) |
+| **code** | `code` | `CodeEmbedder` | Code-tuned model via LangChain |
+| **api** | `openai` | `OpenAIEmbedder` | OpenAI `text-embedding-3-small` |
 
-- **Hashing (sparse / keyword)**: pure NumPy bag-of-words via the hashing trick.
-  Fast, no download, but only matches on shared exact words.
-- **SentenceTransformer (dense / semantic)**: real neural embeddings
-  (`all-MiniLM-L6-v2`, 384 dims). Matches on meaning, so it handles synonyms
-  and paraphrases.
-- **Hybrid (sparse + dense fusion)**: runs both legs, scales them (default
-  30% keyword / 70% semantic), concatenates, and L2-normalizes into one vector.
-  Single-index fusion — simpler than dual-index + RRF, but captures both signal
-  types in one search pass.
+### Folder layout
+
+```
+embedding/
+├── sparse/       hashing, splade
+├── dense/        semantic, langchain
+├── hybrid/       hybrid
+├── instruct/     instruct (E5 prefixes)
+├── multimodal/   clip
+├── code/         code
+├── api/          openai
+├── langchain_adapter.py   # LangChain → BaseEmbedder bridge
+└── categories.py          # category taxonomy
+```
+
+LangChain is used wherever a partner package exists (`langchain-huggingface`,
+`langchain-openai`). SPLADE uses `sentence-transformers` `SparseEncoder` directly
+(no LangChain sparse class in partner packages yet).
 
 ## Vector store
 
 - **InMemoryVectorStore**: brute-force, exact search over all vectors. Supports
-  three similarity metrics: `cosine` (default), `dot`, `euclidean`. Each stored
-  record keeps the vector, original text, and metadata (source, chunk index,
-  char offsets).
+  three similarity metrics: `cosine` (default), `dot`, `euclidean`.
 
 Both embedders and stores follow the **Strategy Pattern** (same as Feature 1's
 chunkers), so the pipeline never changes when you swap implementations.
 
-## What the demo shows
-
-- An embedder comparison table (dimension, chunk count, embed time)
-- The same queries run through keyword, semantic, and hybrid embeddings side by
-  side, so you can see dense embeddings win on paraphrased queries and hybrid
-  often balances both
-- A metric comparison (cosine vs dot vs euclidean) on the same dense vectors
-
 ## Key ideas
 
 - An embedding is just a fixed-length vector representing meaning.
-- Similar meaning → nearby vectors, even with no shared words.
-- Metadata stored beside each vector is what makes retrieval controllable.
+- **Same embedder** must index and query (instruct models use different prefixes).
+- Different dimensions are fine — each index is self-contained.
 - Brute-force search is exact; production uses approximate indexes (HNSW/IVF).

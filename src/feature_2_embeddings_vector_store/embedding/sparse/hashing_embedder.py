@@ -1,28 +1,21 @@
 # hashing_embedder.py
-# A SPARSE / keyword-style baseline embedder. No model download, pure NumPy.
+# Category: SPARSE — dumb keyword baseline (bag-of-words via hashing trick).
 #
-# How it works (the "hashing trick"):
-#   1. Lowercase and split the text into word tokens.
-#   2. Hash each token to a bucket index in [0, dimension).
-#   3. Count how often each bucket is hit -> a term-frequency vector.
-#   4. L2-normalize the vector so cosine similarity behaves well.
-#
-# This is essentially bag-of-words. It is fast and interpretable, but it can
-# ONLY match on shared exact words. It has no idea that "car" and "automobile"
-# mean the same thing. We include it so you can directly feel the gap between
-# keyword matching and true semantic (dense) embeddings.
+# No model download, pure NumPy. Only matches on shared exact words.
 
 import hashlib
 import re
 
 import numpy as np
 
-from .base_embedder import BaseEmbedder
+from ..base_embedder import BaseEmbedder
 
 _TOKEN_RE = re.compile(r"[a-z0-9]+")
 
 
 class HashingEmbedder(BaseEmbedder):
+    category = "sparse"
+
     def __init__(self, dimension: int = 512):
         if dimension <= 0:
             raise ValueError("dimension must be positive")
@@ -47,7 +40,6 @@ class HashingEmbedder(BaseEmbedder):
         return vectors
 
     def _hash(self, token: str) -> int:
-        # Stable hash across processes (Python's built-in hash() is salted).
         digest = hashlib.md5(token.encode("utf-8")).hexdigest()
         return int(digest, 16) % self._dimension
 

@@ -18,6 +18,9 @@ import numpy as np
 class BaseEmbedder(ABC):
     """Abstract base class for all embedding strategies."""
 
+    # Override in subclasses: sparse | dense | hybrid | instruct | multimodal | code | api
+    category: str = "dense"
+
     @abstractmethod
     def embed(self, texts: list[str]) -> np.ndarray:
         """

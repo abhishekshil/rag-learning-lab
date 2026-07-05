@@ -13,11 +13,14 @@ subpackage under `src/feature_*` containing only feature-specific code.
 
 ```
 rag-learning-lab/
-├── main.py            # the app: pick a feature + options, runs it
+├── main.py            # minimal CLI benchmark runner
+├── ui.py              # Gradio UI — sections per feature
 ├── requirements.txt   # common dependencies (all features)
 ├── docs/              # RAG source documents, shared across features
 │   └── sample.txt
 └── src/
+    ├── lab/                           # benchmark harness (registry + reports)
+    │   └── benchmarks/                # one module per feature
     ├── feature_1_document_ingestion/       # load, clean, 7 chunking strategies
     └── feature_2_embeddings_vector_store/  # embeddings, vector store, search
 ```
@@ -27,14 +30,17 @@ rag-learning-lab/
 ```bash
 python3 -m pip install -r requirements.txt
 
-# Interactive menu (choose feature + options):
-python3 main.py
+# Visual lab (sections per feature):
+python3 ui.py
+# or
+python3 main.py --ui
 
-# Or pass options directly:
+# CLI benchmarks:
+python3 main.py --list
 python3 main.py --feature 1 --chunker all
 python3 main.py --feature 1 --chunker recursive --show-chunks
+python3 main.py --feature 2 --embedder hashing --no-metrics
 python3 main.py --feature 2 --embedder all --metric cosine
-python3 main.py --feature 2 --chunker recursive --embedder semantic --no-metrics
 ```
 
 ## Learning Path (Feature-wise)

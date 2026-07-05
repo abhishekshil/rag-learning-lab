@@ -1,25 +1,18 @@
 # hybrid_embedder.py
-# A HYBRID embedder that fuses sparse (keyword) and dense (semantic) vectors.
-#
-# Production systems often run sparse + dense retrieval separately and merge
-# ranks with RRF. Here we use a simpler single-index approach that still fits
-# BaseEmbedder: embed with both legs, scale each part, concatenate, L2-normalize.
-# One vector per chunk, so the existing pipeline and vector store need no changes.
-#
-# Trade-off vs dual-index + RRF:
-#   + One index, one search call, easy to wire up
-#   - Less flexible than tuning sparse/dense at query time with separate indexes
+# Category: HYBRID — fuses sparse (hashing) + dense (semantic) in one vector.
 
 from typing import Optional
 
 import numpy as np
 
-from .base_embedder import BaseEmbedder
-from .hashing_embedder import HashingEmbedder
-from .SentenceTransformer import SentenceTransformerEmbedder
+from ..base_embedder import BaseEmbedder
+from ..dense import SentenceTransformerEmbedder
+from ..sparse import HashingEmbedder
 
 
 class HybridEmbedder(BaseEmbedder):
+    category = "hybrid"
+
     def __init__(
         self,
         sparse: Optional[HashingEmbedder] = None,

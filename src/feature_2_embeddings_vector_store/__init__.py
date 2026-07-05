@@ -4,9 +4,17 @@
 
 from .pipeline import build_index, chunks_to_records, search, IndexResult
 from .embedding import (
+    ALL_EMBEDDER_KEYS,
+    CATEGORY_LABELS,
+    EMBEDDER_CATEGORIES,
+    ClipEmbedder,
+    CodeEmbedder,
     HashingEmbedder,
     HybridEmbedder,
+    InstructEmbedder,
     LangChainSentenceTransformerEmbedder,
+    OpenAIEmbedder,
     SentenceTransformerEmbedder,
+    SpladeEmbedder,
 )
 from .vector_store import InMemoryVectorStore, VectorRecord, SearchResult

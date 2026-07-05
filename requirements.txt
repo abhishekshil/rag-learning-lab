@@ -1,9 +1,11 @@
 # Common dependencies for the whole RAG Learning Lab (all features).
 langchain-core>=0.3.0
 langchain-huggingface>=0.1.0
+langchain-openai>=0.2.0
 langchain-text-splitters==0.3.8
 nltk==3.9.1
 pypdf==5.4.0
 tiktoken==0.8.0
 sentence-transformers==5.1.2
 numpy>=1.24
+gradio>=4.0.0
