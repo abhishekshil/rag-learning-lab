@@ -1,16 +1,6 @@
 # base_store.py
-# Responsibility: Define the contract every vector store must follow, plus the
-# small data classes that flow in and out of it.
-#
-# LLD Pattern: Strategy Pattern again.
-#   - BaseVectorStore is the interface (add + search).
-#   - InMemoryVectorStore is one concrete implementation (brute-force).
-#   - A real project could add a FaissVectorStore or a PineconeVectorStore
-#     later without touching the pipeline.
-#
-# A vector store's job is simple to state: keep every chunk's vector together
-# with its text and metadata, and given a query vector return the top-k closest
-# records.
+# Contract every vector store follows (Strategy Pattern).
+# Implementations live in this package: PgVectorStore (+ Neo4j / MinIO in production_pipeline).
 
 from abc import ABC, abstractmethod
 from dataclasses import dataclass, field

@@ -1,0 +1,62 @@
+# Tutorial storage stack for Feature 2 (production RAG pattern).
+# Start:  docker compose up -d
+# Stop:   docker compose down
+
+services:
+  postgres:
+    image: pgvector/pgvector:pg16
+    container_name: rag-lab-postgres
+    environment:
+      POSTGRES_USER: raglab
+      POSTGRES_PASSWORD: raglab
+      POSTGRES_DB: raglab
+    ports:
+      - "5434:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./docker/init-pgvector.sql:/docker-entrypoint-initdb.d/init.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U raglab -d raglab"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  neo4j:
+    image: neo4j:5
+    container_name: rag-lab-neo4j
+    environment:
+      NEO4J_AUTH: neo4j/raglab123
+      NEO4J_PLUGINS: '["apoc"]'
+    ports:
+      - "7474:7474"   # browser UI
+      - "7687:7687"   # bolt
+    volumes:
+      - neo4j_data:/data
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://localhost:7474 || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+  minio:
+    image: minio/minio:latest
+    container_name: rag-lab-minio
+    command: server /data --console-address ":9001"
+    environment:
+      MINIO_ROOT_USER: raglab
+      MINIO_ROOT_PASSWORD: raglab123
+    ports:
+      - "9000:9000"   # S3 API
+      - "9001:9001"   # console UI
+    volumes:
+      - minio_data:/data
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+volumes:
+  postgres_data:
+  neo4j_data:
+  minio_data:

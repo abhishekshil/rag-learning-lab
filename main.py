@@ -13,7 +13,7 @@ sys.path.insert(0, ROOT)
 from src.lab import list_features, run_benchmark  # noqa: E402
 from src.lab import benchmarks  # noqa: E402, F401 — register features
 from src.lab.chunkers import CHUNKER_KEYS  # noqa: E402
-from src.lab.benchmarks.feature_2 import EMBEDDERS, METRICS  # noqa: E402
+from src.lab.benchmarks.feature_2 import EMBEDDERS, METRICS, STORES  # noqa: E402
 
 
 def _build_parser() -> argparse.ArgumentParser:
@@ -29,6 +29,7 @@ def _build_parser() -> argparse.ArgumentParser:
     )
     p.add_argument("--embedder", choices=list(EMBEDDERS) + ["all"], help="Feature 2 only")
     p.add_argument("--metric", choices=list(METRICS), default="cosine", help="Feature 2 only")
+    p.add_argument("--store", choices=list(STORES), default="pgvector", help="Feature 2: vector store backend")
     p.add_argument("--show-chunks", action="store_true", help="Feature 1: include chunk text")
     p.add_argument("--no-metrics", action="store_true", help="Feature 2: skip metric comparison")
     p.add_argument("--list", action="store_true", help="List registered features")
@@ -64,6 +65,7 @@ def main(argv: list[str] | None = None) -> None:
             opts["chunker"] = "recursive"
         opts["embedder"] = args.embedder or "all"
         opts["metric"] = args.metric
+        opts["store"] = args.store
         opts["show_metrics"] = not args.no_metrics
 
     report = run_benchmark(args.feature, **opts)

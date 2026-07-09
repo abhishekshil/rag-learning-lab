@@ -1,3 +1,9 @@
+# Local vector store persistence
+# (Chroma removed — production tutorial uses Docker: Postgres, Neo4j, MinIO)
+
+# Local notes and reference material (not part of the lab)
+extra/
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[codz]

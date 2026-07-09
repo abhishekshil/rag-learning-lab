@@ -18,7 +18,7 @@ import numpy as np
 class BaseEmbedder(ABC):
     """Abstract base class for all embedding strategies."""
 
-    # Override in subclasses: sparse | dense | hybrid | instruct | multimodal | code | api
+    # Override in subclasses: sparse | dense | hybrid | instruct | multimodal | code | graph | api
     category: str = "dense"
 
     @abstractmethod

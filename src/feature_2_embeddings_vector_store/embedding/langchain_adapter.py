@@ -1,5 +1,4 @@
-# langchain_adapter.py
-# Shared bridge: LangChain Embeddings → our BaseEmbedder (NumPy vectors).
+# Shared bridge: LangChain Embeddings ↔ our BaseEmbedder (NumPy vectors).
 #
 # LangChain uses embed_documents() for chunks and embed_query() for search.
 # Symmetric models treat both the same; instruct models override prefixes
@@ -10,6 +9,34 @@ from __future__ import annotations
 import numpy as np
 
 from .base_embedder import BaseEmbedder
+
+
+class EmbedderAsLangChain:
+    """Expose a BaseEmbedder through LangChain's Embeddings interface (for PGVector, etc.)."""
+
+    def __init__(self, embedder: BaseEmbedder):
+        self._embedder = embedder
+
+    def embed_documents(self, texts: list[str]) -> list[list[float]]:
+        return self._embedder.embed(texts).tolist()
+
+    def embed_query(self, text: str) -> list[float]:
+        return self._embedder.embed_one(text).tolist()
+
+
+def embedder_as_langchain(embedder: BaseEmbedder):
+    """Wrap any BaseEmbedder so LangChain vector stores accept it."""
+    return EmbedderAsLangChain(embedder)
+
+
+def default_langchain_embeddings(model_name: str = "sentence-transformers/all-MiniLM-L6-v2"):
+    """Default LangChain HuggingFaceEmbeddings used when no embedder is passed."""
+    from langchain_huggingface import HuggingFaceEmbeddings
+
+    return HuggingFaceEmbeddings(
+        model_name=model_name,
+        encode_kwargs={"normalize_embeddings": True},
+    )
 
 
 class LangChainEmbedder(BaseEmbedder):

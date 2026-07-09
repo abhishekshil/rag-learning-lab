@@ -2,7 +2,7 @@
 # Category: SPARSE — learned sparse embeddings (SPLADE via sentence-transformers).
 #
 # Smarter than hashing: neural model expands important terms while staying sparse.
-# We densify vectors so the existing in-memory vector store works unchanged.
+# We densify vectors so the pgvector store can index them unchanged.
 #
 # Note: SPLADE has no dedicated langchain-huggingface class yet; sentence-transformers
 # SparseEncoder is the standard path and matches LangChain's recommended approach.

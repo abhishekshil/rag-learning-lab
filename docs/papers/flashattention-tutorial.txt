@@ -1,0 +1,25 @@
+FlashAttention: Fast and Memory-Efficient Exact Attention with IO-Awareness
+arXiv:2205.14135
+
+Abstract
+We propose FlashAttention, an IO-aware exact attention algorithm that uses tiling to reduce the number of memory reads/writes between GPU high bandwidth memory (HBM) and on-chip SRAM. FlashAttention trains Transformers faster and with less memory than standard attention implementations.
+
+Introduction
+The Transformer architecture relies on self-attention, which has quadratic time and memory complexity in sequence length. Standard implementations materialize the full N×N attention matrix in HBM, which becomes the bottleneck for long contexts. FlashAttention reorders the computation to minimize HBM access while remaining mathematically exact.
+
+Related Work
+FlashAttention builds on the standard scaled dot-product attention introduced in "Attention Is All You Need" (the Transformer paper). Later work such as FlashAttention-2 improves on FlashAttention by better work partitioning and reducing non-matmul FLOPs. FlashAttention-2 reports up to 2× speedup over the original FlashAttention on A100 GPUs.
+
+Method
+FlashAttention splits queries, keys, and values into blocks and computes attention block-by-block. The algorithm never stores the full attention matrix. Instead it uses online softmax to accumulate partial results. This IO-aware design is the key insight: attention is memory-bound, not compute-bound, on modern GPUs.
+
+Results
+On GPT-2 scale models, FlashAttention reaches up to 3× training speedup versus PyTorch standard attention. Memory usage drops substantially, enabling longer context windows on the same hardware.
+
+Conclusion
+FlashAttention shows that algorithm-system co-design matters for production LLM training. The follow-up FlashAttention-2 paper extends these ideas with improved parallelism across warps and thread blocks.
+
+References
+- Vaswani et al., "Attention Is All You Need" (Transformer)
+- Dao, "FlashAttention: Fast and Memory-Efficient Exact Attention with IO-Awareness"
+- Dao, "FlashAttention-2: Faster Attention with Better Parallelism and Work Partitioning"

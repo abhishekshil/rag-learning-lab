@@ -14,7 +14,7 @@ import gradio as gr
 from src.lab import list_features, run_benchmark
 from src.lab import benchmarks  # noqa: F401 — register features
 from src.lab.chunkers import CHUNKER_KEYS
-from src.lab.benchmarks.feature_2 import EMBEDDERS, METRICS
+from src.lab.benchmarks.feature_2 import EMBEDDERS, METRICS, STORES
 
 
 def _report_to_sections(report) -> list[tuple[str, str]]:
@@ -28,12 +28,13 @@ def _run_feature_1(chunker: str, show_chunks: bool):
     return header, sections
 
 
-def _run_feature_2(chunker: str, embedder: str, metric: str, show_metrics: bool):
+def _run_feature_2(chunker: str, embedder: str, metric: str, store: str, show_metrics: bool):
     report = run_benchmark(
         2,
         chunker=chunker,
         embedder=embedder,
         metric=metric,
+        store=store,
         show_metrics=show_metrics,
     )
     sections = _report_to_sections(report)
@@ -91,23 +92,29 @@ def launch() -> None:
                     )
                     f2_embedder = gr.Dropdown(
                         choices=["all"] + list(EMBEDDERS),
-                        value="hashing",
+                        value="langchain",
                         label="Embedder",
-                        info="Use 'all' to compare every embedder (slow)",
+                        info="langchain (default) · graph fuses citations · 'all' is slow",
                     )
                 with gr.Row():
                     f2_metric = gr.Dropdown(choices=list(METRICS), value="cosine", label="Metric")
+                    f2_store = gr.Dropdown(
+                        choices=list(STORES),
+                        value="pgvector",
+                        label="Vector store",
+                        info="requires: docker compose up -d",
+                    )
                     f2_metrics = gr.Checkbox(label="Metric comparison", value=False)
                 f2_run = gr.Button("Run benchmark", variant="primary")
-                f2_out = gr.Markdown("*Ready. Start with hashing or semantic — all embedders download models.*")
+                f2_out = gr.Markdown("*Ready. Default: langchain embedder. Try `graph` with `--store production`.*")
 
-                def on_f2(chunker, embedder, metric, show_metrics):
-                    h, secs = _run_feature_2(chunker, embedder, metric, show_metrics)
+                def on_f2(chunker, embedder, metric, store, show_metrics):
+                    h, secs = _run_feature_2(chunker, embedder, metric, store, show_metrics)
                     return _render_sections(h, secs)
 
                 f2_run.click(
                     on_f2,
-                    [f2_chunker, f2_embedder, f2_metric, f2_metrics],
+                    [f2_chunker, f2_embedder, f2_metric, f2_store, f2_metrics],
                     f2_out,
                 )
 
